@@ -3966,6 +3966,7 @@ impl ThreadRequestProcessor {
 
         let ThreadResumeParams {
             thread_id,
+            experimental_raw_events,
             history,
             path,
             model,
@@ -4369,7 +4370,7 @@ impl ThreadRequestProcessor {
                     self.ensure_conversation_listener(
                         thread_id,
                         request_id.connection_id,
-                        /*raw_events_enabled*/ false,
+                        experimental_raw_events,
                     )
                     .await,
                     thread_id,
@@ -4846,6 +4847,7 @@ impl ThreadRequestProcessor {
             let command = crate::thread_state::ThreadListenerCommand::SendThreadResumeResponse {
                 request: Box::new(crate::thread_state::PendingThreadResumeRequest {
                     request_id: request_id.clone(),
+                    experimental_raw_events: params.experimental_raw_events,
                     history_items,
                     cold_resume_token_usage_turn_id,
                     config_snapshot,

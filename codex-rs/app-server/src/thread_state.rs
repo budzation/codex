@@ -40,6 +40,7 @@ pub(crate) type PendingThreadUnloads = Arc<Mutex<HashMap<ThreadId, watch::Sender
 
 pub(crate) struct PendingThreadResumeRequest {
     pub(crate) request_id: ConnectionRequestId,
+    pub(crate) experimental_raw_events: bool,
     pub(crate) history_items: Vec<RolloutItem>,
     /// Usage attribution already resolved while cold-loading a paginated child.
     pub(crate) cold_resume_token_usage_turn_id: Option<String>,

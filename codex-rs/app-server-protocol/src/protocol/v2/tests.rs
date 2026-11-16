@@ -2288,6 +2288,61 @@ fn client_request_thread_resume_granular_approval_policy_is_marked_experimental(
 }
 
 #[test]
+fn thread_resume_raw_events_default_does_not_change_wire_or_experimental_policy() {
+    let params: ThreadResumeParams =
+        serde_json::from_value(serde_json::json!({ "threadId": "thr_resume" })).unwrap();
+    assert!(!params.experimental_raw_events);
+    let wire = serde_json::to_value(&params).unwrap();
+    assert!(wire.get("experimentalRawEvents").is_none());
+    let request = crate::ClientRequest::ThreadResume {
+        request_id: crate::RequestId::Integer(1),
+        params,
+    };
+    assert_eq!(
+        crate::experimental_api::ExperimentalApi::experimental_reason(&request),
+        None
+    );
+}
+
+#[test]
+fn thread_resume_raw_events_true_requires_experimental_api() {
+    let params: ThreadResumeParams = serde_json::from_value(serde_json::json!({
+        "threadId": "thr_resume", "experimentalRawEvents": true
+    }))
+    .unwrap();
+    assert!(params.experimental_raw_events);
+    assert_eq!(
+        serde_json::to_value(&params).unwrap()["experimentalRawEvents"],
+        true
+    );
+    let request = crate::ClientRequest::ThreadResume {
+        request_id: crate::RequestId::Integer(2),
+        params,
+    };
+    assert_eq!(
+        crate::experimental_api::ExperimentalApi::experimental_reason(&request),
+        Some("thread/resume.experimentalRawEvents")
+    );
+}
+
+#[test]
+fn thread_resume_explicit_false_does_not_request_experimental_api() {
+    let params: ThreadResumeParams = serde_json::from_value(serde_json::json!({
+        "threadId": "thr_resume", "experimentalRawEvents": false
+    }))
+    .unwrap();
+    assert!(!params.experimental_raw_events);
+    let request = crate::ClientRequest::ThreadResume {
+        request_id: crate::RequestId::Integer(3),
+        params,
+    };
+    assert_eq!(
+        crate::experimental_api::ExperimentalApi::experimental_reason(&request),
+        None
+    );
+}
+
+#[test]
 fn client_request_thread_fork_granular_approval_policy_is_marked_experimental() {
     let reason = crate::experimental_api::ExperimentalApi::experimental_reason(
         &crate::ClientRequest::ThreadFork {

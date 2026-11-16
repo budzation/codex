@@ -354,6 +354,12 @@ pub struct ThreadSettingsUpdatedNotification {
 pub struct ThreadResumeParams {
     pub thread_id: String,
 
+    /// Opt in to raw response item and sampling-completion notifications.
+    /// Omitted or false leaves a loaded thread's existing opt-in unchanged.
+    #[experimental("thread/resume.experimentalRawEvents")]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub experimental_raw_events: bool,
+
     /// [UNSTABLE] FOR CODEX CLOUD - DO NOT USE.
     /// If specified, the thread will be resumed with the provided history
     /// instead of loaded from disk.
